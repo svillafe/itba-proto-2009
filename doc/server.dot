@@ -1,0 +1,156 @@
+digraph prof {
+	ratio = fill;
+	rankdir=LR;
+	node [style=filled];
+	
+	main -> getData;
+	main -> loadFilms;
+	main -> loadGens;
+	main -> initServidor;
+	main -> doTCP;
+	
+	getData -> getEndPoint
+	
+	loadFilms ->parseaBufferFilm
+	
+	parseaBufferFilm->getMd5
+	parseaBufferFilm->md5ToString
+	doTCP->serverClient
+
+	serverClient->getMsgCom
+	serverClient->chgPass
+	serverClient->downloadInfo
+	serverClient->buyMovie
+	serverClient->listClients
+	serverClient->listMovies
+	serverClient->listGens
+	serverClient->disconnectUser
+
+	buyMovie->getUserPswd
+	buyMovie->initSerCon
+	buyMovie->enterMsgCom
+	buyMovie->getUserLevel
+	buyMovie->realeaseServer
+	buyMovie->initFileMovie
+	buyMovie->moneyInAccount
+	buyMovie->releaseFileMovie
+
+	moneyInAccount->connectToPServer
+	connectToPServer->connectToPS
+	connectToPServer->enterPSRequest
+	connectToPServer->getPSReply
+
+	chgPass->initSerCon
+	chgPass->getMsgCom
+	chgPass->realeaseServer
+	chgPass->enterMsgCom
+
+	downloadInfo->initSerCon
+	downloadInfo->realeaseServer
+	downloadInfo->getUserLevel
+	downloadInfo->enterMsgCom
+	downloadInfo->initFileMovie
+	downloadInfo->filmExist
+	downloadInfo->releaseFileMovie
+	downloadInfo->getPath
+	downloadInfo->getExt
+	downloadInfo->existeLaPeli
+
+	getUserLevel->connectLdap
+	getUserLevel->search
+	getUserLevel->getAttributes
+	getUserLevel->endLdap
+
+	initFileMovie->loadFile
+	releaseFileMovie->releaseFile
+	
+	getMsgCom->readFromSock
+	getMsgCom->readTheSecondBlock
+	getMsgCom->checkMCookie
+
+	enterMsgCom -> msgToNetwork;
+	enterMsgCom -> encriptarWrapper;
+	enterMsgCom -> writeOnSock;
+	msgToNetwork -> parseaCon;
+	msgToNetwork -> parseaPreBuyMovie;
+	msgToNetwork -> parseaBuyMovie;
+	msgToNetwork -> parseaPreChg;
+	msgToNetwork -> parseaChg;
+	msgToNetwork -> parseaDownInfo;
+	msgToNetwork -> parseaDownData;
+	msgToNetwork -> parseaPreListClient;
+	msgToNetwork -> parseaListClient;
+	msgToNetwork -> parseaListGen;
+	msgToNetwork -> parseaListMovies;
+	msgToNetwork -> parseaDisco;
+	encriptarWrapper -> setKey;
+	encriptarWrapper -> encriptar;
+	encriptar -> des_encipher;
+	
+	readTheSecondBlock->readConUsr
+	readTheSecondBlock->readChg
+	readTheSecondBlock->readPreChg
+	readTheSecondBlock->readDownData
+	readTheSecondBlock->readDownInfo
+	readTheSecondBlock->readPreBuyMovie
+	readTheSecondBlock->readBuyMovie
+	readTheSecondBlock->readListGen
+	readTheSecondBlock->readListFilm
+	readTheSecondBlock->readListClient
+	readTheSecondBlock->readPreListClient
+	readTheSecondBlock->readDisco
+
+	readConUsr->readFromSock
+
+	readChg->readFromSock
+	readChg->desencriptarWrapper
+
+	readPreChg->readFromSock
+
+	readDownData->readFromSock
+
+	readDownInfo->readFromSock
+
+	readPreBuyMovie->readFromSock
+
+	readBuyMovie->readFromSock
+	readBuyMovie->desencriptarWrapper
+
+	readListGen->readFromSock
+
+	readListFilm->readFromSock
+
+	readListClient->readFromSock
+	readListClient->desencriptarWrapper
+
+	readPreListClient->readFromSock
+
+	readDisco->readFromSock
+
+	checkMCookie->serverFun
+	checkMCookie->clientFun
+
+	/*Las ultimas que agrego*/
+	listClients->initSerCon
+	listClients->getUserPswd
+	listClients->enterMsgCom
+	listClients->realeaseServer
+	listClients->getUsers
+
+	listGens->initSerCon
+	listGens->realeaseServer
+	listGens->loadGens
+	listGens->enterMsgCom
+
+	listMovies->initSerCon
+	listMovies->enterMsgCom
+	listMovies->realeaseServer
+
+	disconnectUser->initSerCon
+	disconnectUser->enterMsgCom
+	disconnectUser->getUserLevel
+	disconnectUser->initFileMovie
+	disconnectUser->desconectarUsuario
+	disconnectUser->releaseFileMovie
+	disconnectUser->realeaseServer
+}

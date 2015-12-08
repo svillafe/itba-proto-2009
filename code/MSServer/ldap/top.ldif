@@ -1,0 +1,10 @@
+dn: dc=MSServer,dc=com
+dc: MSServer
+objectClass: dcObject
+objectClass: organizationalUnit
+ou: MSServer Dot com
+
+## Build the people ou.
+dn: ou=people,dc=MSServer,dc=com
+ou: people
+objectClass: organizationalUnit

@@ -1,0 +1,3 @@
+star wars*Ciencia Ficcion*121*500*3.44*Luke Skywalker leaves his home planet, teams up with other rebels, and tries to save Princess Leia from the evil clutches of Darth Vader.*movies/starWars.jpg*
+corazon valiente*Accion/Drama*177*700*3.44*William Wallace, a commoner, unites the 13th Century Scots in their battle to overthrow English rule.*movies/braveHerat.jpg*
+300*Accion/Drama*177*700*3.44*El chaboncito de 300, a commoner, unites the 13th Century Scots in their battle to overthrow English rule.*movies/300.jpg*

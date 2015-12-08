@@ -1,0 +1,55 @@
+Pasos del Movie Store Server:
+0° Leer los archivos de configuracion para saber donde estan los ip y puertos del LDAP y PL
+1° Conectarse con el LDAP SEVER(connect de socket)
+2° Conectarse con PL Server(connect de socket)
+3° Crear la cola para hijos (clientes o conexion)
+4° Crear el hijo de conexiones(Este hijo solo espera clientes)
+5° Leer de la cola de pedidos (codigo 1)
+6° Responder Pedido.
+	6.1 Si es un pedido de conexiones, crear un nuevo hijo(accept y fork).
+	6.2 Sino responder y dejar el mensaje en la cola, para que lo lea el hijo correspondiente.
+7° Volver al 5.
+---------------------------------------------------------------------
+Formato del mensaje de la cola de mensajes:
+__________________________________________
+long type(Prioridad): 
+	Proceso de conexiones: CHLD_CONEX
+	Otro Proceso: CHLD_CLIENT
+mensaje:
+	Proceso de conexiones: fd /*redundante por ahora*/
+	Otro Proceso: pid, Codigo de operacion, char*. :D
+
+
+Pasos del Client Manager:
+1. Recibir Pedido del cliente.
+2. Mandarlo a la cola.
+3. Leer mensaje de la cola.
+4. Responder.
+	4.1. Si es una pelicula, crear un hijo y tranferencia de peliculas.
+
+--------------------------------------------------------------------
+Pasos para el cliente:
+1. Leer el archivo de configuracion.
+2. Esperar comandos del usuario.
+3. Mandar peticiones.
+4. Mostrar respuestas.
+	Si fue una peticion de descargar pelicula, mirar la respuesta si crea un hijo o no.
+Formato del mensaje sobre TCP del cliente al Client Manager:
+1 Operation Code
+
+Formato del archivo de configuracion del MS:
+__________________________________________
+MS:
+IP:
+Puerto:
+LDAP
+IP:
+Puerto:
+PL:
+IP:
+Puerto:
+Formato del archivo de configuracion del Cliente:
+________________________________________________
+Servidor:
+IP:
+Puerto:

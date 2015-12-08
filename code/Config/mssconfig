@@ -1,0 +1,5 @@
+ldapServer=10.6.0.199;389
+plServer=127.0.0.1;10539
+mssendpoint=127.0.0.1;10535
+mssendpoint=127.0.0.1;11535
+mssendpoint=127.0.0.1;12535

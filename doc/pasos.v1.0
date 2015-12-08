@@ -1,0 +1,87 @@
+Capa aplicacion:
+----------------
+#define MAX_SEND 1024;
+typedef struct{
+int opcode;
+char mensaje[MAX_SEND];
+}communicationT;
+
+Capa de transporte:
+------------------
+typedef struct{
+comunicationT data;
+int MagicCookie;
+}TransportT;
+
+Lista de opcode Compartidos:
+0 CON_USR: loguear un usuario
+1 CHG_PASS: Cambiar password
+2 DOWNLOAD: Bajar pelicula
+3 BUY_FILM: Comprar Pelicula
+4 LIST_GEN: Listar genero
+5 LIST_FILM: Listar peliculas
+6 DISCONECT: Desconectar
+7 Ayuda /*Local del Cliente*/
+8 Salir /*Local del cliente*/
+
+
+Casos:
+
+Conectar:
+Del cliente al servidor
+Cliente Le manda un CON_USR al servidor.
+  Campos: Aplicacion: 
+     opcode: 0
+    data:(Si es usuario le manda el Usuario y el password,Si es invitado que mande invitado)
+  Transporte:
+    mc:(Si es invitado -1 y si es Usuario x)
+Servidor: Se fija nombre de usuario. Si es Invitado, responde con el pedido y nada mas.
+          Si es usuario:
+			Se tiene que verificar con LDAP.
+            Si existe crear/o abrir el archivo.
+			Mandar ok.(Con CON_USR)
+            
+            Si no existe refuse.
+	
+   Campos: Aplicacion: 
+      opcode: CON_USR
+      data:(OK)|(REFUSE)
+    Transporte:
+	 mc:Servidor(x)
+
+CHG_PASS:  Cambiar password
+  Del cliente al servidor
+  Campos: Aplicacion: 
+     opcode: 1
+    data:(Si es usuario y el nuevo password)
+  Transporte:
+    mc:Cliente(x)
+Servidor: Levanta el nombre de usuario y la nueva contraseña.
+          Se tiene que modificar el ldap.
+          Mandar ok.(Con CHG_PASS)
+            
+            Si no existe refuse.
+    
+   Campos: Aplicacion: 
+      opcode: CHG_PASS
+      data:(OK)
+    Transporte:
+     mc:Servidor(x)
+
+DOWNLOAD: Bajar Pelicula
+  Del cliente al servidor
+  Campos: Aplicacion: 
+    opcode: 2
+    data:(Usuario , pelicula)
+  Transporte:
+    mc:Cliente(x)
+Servidor: Levanta el nombre de usuario y Se fija si compro la peli.
+          Si tiene level. Decrementa el level.
+          Mandar Pelicula de a tramos.
+          Si no existe refuse.
+    
+Campos: Aplicacion: 
+   opcode: Download
+   data:(Lapeli)
+   Transporte:
+   mc:Servidor(x)

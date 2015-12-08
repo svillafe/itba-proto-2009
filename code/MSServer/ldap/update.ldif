@@ -1,0 +1,5 @@
+## Add a web page location to Jerry Carter.
+dn: cn=Beatrix,ou=people,dc=MSServer,dc=com
+changetype: modify
+add: userPassword
+userPassword: 1234

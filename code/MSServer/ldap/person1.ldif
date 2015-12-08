@@ -1,0 +1,58 @@
+dn: cn=Beatrix,ou=people,dc=MSServer,dc=com
+cn: Beatrix
+sn: Moolie
+mail: beatrix@hotmail.com
+description: Primer cliente del Movie Store Server
+userPassword: 1234
+telexNumber: 6
+objectClass: inetOrgPerson
+
+
+dn: cn=Charlie,ou=people,dc=MSServer,dc=com
+cn: Charlie
+sn: Brown
+mail: charlie@gmail.com
+description: Segundo cliente de Movie Store Server
+userPassword: 1234
+telexNumber: 3
+objectClass: inetOrgPerson
+
+
+dn: cn=Snoopy,ou=people,dc=MSServer,dc=com
+cn: Snoopy
+sn: Fin
+mail: snoopy@charlybrown.com
+description: Personaje de television
+userPassword: 1234
+telexNumber: 8
+objectClass: inetOrgPerson
+
+
+dn: cn=Gregor,ou=people,dc=MSServer,dc=com
+cn: Gregor
+sn: Samsa
+mail: gregorsamsa@kafka.com
+description: antes de metamorfosearse miraba peliculas!
+userPassword: 1234
+telexNumber: 2
+objectClass: inetOrgPerson
+
+
+dn: cn=Macri,ou=people,dc=MSServer,dc=com
+cn: Macri
+sn: Mauricio
+mail: mauriciomacri@capital.com
+description: toda la torta!
+userPassword: 1234
+telexNumber: 9
+objectClass: inetOrgPerson
+
+
+dn: cn=Denarvaez,ou=people,dc=MSServer,dc=com
+cn: Denarvaez
+sn: Francisco
+mail: denarvaez@efedrina.com
+description: soy un tipo comun
+userPassword: 1234
+telexNumber: 4
+objectClass: inetOrgPerson

@@ -1,0 +1,25 @@
+Comandos ldap:
+
+--Para ver lo que hay
+
+	ldapsearch -x -b "dc=MSServer,dc=com" "(objectclass=*)"
+
+
+--Para agregar la info inicial
+	
+	slapadd -v -l top.ldif
+
+
+--Para agregar cambios:
+
+	ldapmodify -D "cn=admin,dc=MSServer,dc=com" -w "admin" -x -v -f update.ldif
+
+
+--Para agregar clientes:
+
+	ldapmodify -D "cn=admin,dc=MSServer,dc=com" -w "admin" -x -a -f person1.ldif
+
+
+
+
+

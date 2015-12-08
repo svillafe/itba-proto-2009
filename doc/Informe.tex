@@ -1,0 +1,306 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper,left=3cm,right=3cm]{geometry}
+\usepackage{inputenc}
+\usepackage{t1enc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[pdftex]{graphicx}
+\usepackage{textcomp}
+\usepackage{verbatim}
+\usepackage{longtable}
+
+
+\title{
+        \begin{normalsize}PROTOCOLOS DE COMUNICACI\'ON\\ \end{normalsize}
+        \begin{normalsize}Trabajo Pr\'actico Especial\\ \end{normalsize}
+         \vspace{20pt}
+        \textit{\textbf{Compra de pel\'iculas online\\ }}
+        }
+\author {Gabriel Cosi 47.008, Emmanuel Teisaire 48.019\\
+         \& Villa Fern\'andez Santiago 47.399}
+\date        {\begin{small}23 de junio de 2009\end{small}}
+\makeindex
+
+\begin{document}
+\maketitle
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\def\thesubsection  {\arabic{section}.\alph{subsection}} 
+
+\begin{abstract}
+El presente informe tiene como objetivo explicitar detalles de la implementaci\'on de un sistema para comprar pel\'iculas online.\vspace{10pt}
+\end{abstract}
+
+\section{Introducci\'on}
+El trabajo práctico implementa una aplicación cliente servidor. El objetivo es que varios usuarios se puedan conectar a un único servidor (MovieStoreServer), el cual a su vez se conecta a otros servidores. Estos servidores contienen información de cuenta de cada usuario. Un servidor LDAP guarda información en su base de datos de los usuarios autorizados a utilizar el servicio. También contamos con implementaciones de servidores de pago, los cuales almacenan información sobre la plata que posee cada usuario.
+
+\vspace{20pt}
+
+
+\section{Man Page de la aplicaci\'on}
+\subsection{Movie Store Server}
+\begin{verbatim}
+msserver(7)                                                               msserver(7)
+
+NAME
+       msserver - Aplicación servidor que almacena películas para comprar
+
+SYNOPSIS
+       msserver
+
+DESCRIPTION
+       Esta  aplicación  almacena  películas  para ser descargadas por el Movie Store
+       Client. Debe contar con la información para poder conectarse con un servidor 
+       LDAP para validar usuarios y  con  un  Payment  Lookup server para poder 
+       contactar servidores de pago.
+
+AUTHOR
+       Gabriel Cosi 47.008, Emmanuel Teisaire 48.019 & Villa Fernández Santiago 47.399.
+
+Versión: 1.0                      23 de Junio de 2009                      msserver(7)
+
+\end{verbatim}
+
+
+\subsection{Payment lookup Server}
+\begin{verbatim}
+plserver(7)                                                                plserver(7)
+
+NAME
+       plserver - Aplicación para buscar servidores de pago
+
+SYNOPSIS
+       plserver [puerto]
+
+DESCRIPTION
+       Esta aplicación contiene información sobre los servidores de pago, para ser 
+       consultada por el Movie Store Server
+
+OPTIONS
+       [puerto] - Puerto al cual se bindeara el payment lookup server. Si se omite,
+       se bindeará por  default  al puerto 10539
+
+AUTHOR
+       Gabriel Cosi 47.008, Emmanuel Teisaire 48.019 & Villa Fernández Santiago 47.399.
+
+Versión: 1.0                        23 de Junio de 2009                    plserver(7)
+
+\end{verbatim}
+
+\subsection{Payment Server}
+\begin{verbatim}
+pserver(7)                                                                  pserver(7)
+
+NAME
+       pserver - Servidor de pago
+
+SYNOPSIS
+       pserver [puerto]
+
+DESCRIPTION
+       Esta aplicación contiene información sobre el crédito disponible de sus clientes
+
+OPTIONS
+       [puerto]  -  Puerto al cual se bindeará el payment server. Si se omite, se 
+       bindeará por default al puerto 10001
+
+AUTHOR
+       Gabriel Cosi 47.008, Emmanuel Teisaire 48.019 & Villa Fernández Santiago 47.399.
+
+Versión: 1.0                      23 de Junio de 2009                       pserver(7)
+
+\end{verbatim}
+
+
+\subsection{Payment Server}
+\begin{verbatim}
+
+msclient(7)                                                                msclient(7)
+
+NAME
+       msclient - Aplicación para bajar películas
+
+SYNOPSIS
+       msclient
+
+DESCRIPTION
+       Esta aplicación se utiliza para comunicarse con un servidor Movie Store, mediante
+       el cual se pueden bajar películas. El usuario debe estar registrado en un servidor
+       de pago y en el servidor LDAP que  utiliza  el Movie Store Server.
+
+AUTHOR
+       Gabriel Cosi 47.008, Emmanuel Teisaire 48.019 & Villa Fernández Santiago 47.399.
+
+Versión: 1.0                  23 de Junio de 2009                           msclient(7)
+
+\end{verbatim}
+
+\newpage
+\section{Descripci\'on de protocolos desarrollados}
+
+\subsection{Protocolo de comunicaci\'on entre Movie Store Server y Movie Store Client}
+
+Todos los mensajes tienen los siguientes campos:
+\begin{itemize}
+ \item Primer campo:  C\'odigo de operacion
+ \item Segundo campo: Nombre de usuario.
+ \item Tercer Campo: Informaci\'on variable referente al mensaje.
+\end{itemize}
+Para comunicaci\'on entre le Movie Store Server y el Movie Client se utilizaron los siguientes codigos (tipos) de paquetes:
+\begin{verbatim}
+        Descripcion del mensaje                         Codigo de Mensaje
+*Mensaje para Conectar un nuevo usuario:                CON_USR
+*Mensaje previo a comprar una pelicula:                 PRE_BUY_MOVIE
+*Mensaje para comprar una pelicula:                     BUY_MOVIE 
+*Mensaje previo a cambiar un password:                  PRE_CHG_PASS
+*Mensaje para cambiar un password:                      CHG_PASS
+*Mensaje para iniciar transaccion de descargar:         DOWNINFO
+*Mensaje para realizar transaccion de un archivos:      DOWNDATA
+*Mensaje para iniciar listar Clientes:                  PRE_LIST_CLIENTS
+*Mensaje para realizar listar Clientes:                 LIST_CLIENTS
+*Mensaje para realizar listar Generos:                  LIST_GEN
+*Mensaje para realizar listar peliculas:                LIST_MOVIES
+*Mensaje para realizar desconectar:                     DISCONNECT
+\end{verbatim}
+
+Los mensajes que tienen codigos previos son aquellos que deben ir encriptados, para estos casos se manda un mensaje previo para 
+sacar del LDAP la contraseña del usuario y asi poder desencriptar el mensaje encriptado por DES.\\
+
+\underline{Proceso para Conectar un usuario:}\\
+El mensaje que se envia posee el nombre de usuario, el c\'odigo de operacion CON\_USR y en el campo de informacion variable, posee el password del usuario.
+Luego el servidor contesta con el mismo mensaje solo que en la parte de informacion variable, da un OK si esta todo bien o un KO si ocurrio algun error.\\
+
+\underline{Proceso para Comprar Pelicula:}\\
+Primero se envia un mensaje con c\'odigo PRE\_BUY\_MOVIE, y el nombre de usuario, para que el servidor busque la contraseña para desencriptar el proximo mensaje.\\
+Luego se manda el segundo mensaje, con c\'odigo BUY\_MOVIE, nombre del usuario, y la parte de informacion variable encriptada, con el numero de cuenta y informacion necesaria para el servidor de pago.
+El servidor envia un mensaje con BUY\_MOVIE, nombre de usuario y en la parte de informacion un numero de ticket, mas informacion relevante.\\
+
+\underline{Proceso para cambiar un password:}\\
+Primero se envia un mensaje con c\'odigo PRE\_CHG\_PASS, y el nombre de usuario, para que el servidor busque la contraseña para desencriptar el proximo mensaje.
+Luego se manda el segundo mensaje, con c\'odigo CHG\_PASS, nombre del usuario, y la parte de informacion variable encriptada, con el viejo password y el nuevo password.
+El servidor envia un mensaje con CHG\_PASS, nombre de usuario y en la parte de informacion un el viejo y el nuevo password queda de la misma manera, y en el campo resp da un c\'odigo de si fue exitoso o no.\\
+
+\underline{Proceso para descargar una pelicula:}\\
+Primero se envia un mensaje con c\'odigo DOWNINFO y el nombre de usuario, para que el servidor sepa que se quiere iniciar una descargar, y devuelva una estructura del mismo tipo diciendo si puede iniciar la descarga.
+Si la descarga fue autorizada, el servidor comienza a mandar mensajes con código DOWNDATA, los cuales las partes del archivo.
+El cliente va armando el archivo con los mensajes que va reciviendo.\\
+
+\underline{Proceso de listar clientes:}\\
+Primero se envia un mensaje con c\'odigo PRE\_CHG\_CLIENTS, y el nombre de usuario, para que el servidor busque la contraseña para desencriptar el proximo mensaje.
+Luego el cliente recibe mensajes con c\'odigo LIST\_CLIENTS. En la estructura viene información con los clientes para que la aplicacion
+cliente la imprima en la pantalla.\\
+
+\underline{Proceso de listar géneros:}\\
+Primero se envia un mensaje con c\'odigo LIST\_GEN. El servidor lo recibe y manda (de a uno) los generos no repetidos que tiene.\\
+
+\underline{Proceso de listar películas:}\\
+Primero se envia un mensaje con c\'odigo LIST\_MOVIES, el cliente le envía el género específico. El servidor lo recibe y manda (de a uno) las películas que concuerdan con el género.\\
+
+\underline{Proceso de desconexión:}
+Se envía un único mensaje con código DISCONNECT. El servidor lo recibe y actualiza la información que tiene sobre ese usuario.\\
+
+Otro detalle a destacar es que existe un cuarto campo llamado \textit{Magic Cookie}, que es un numero que el cliente setea de manera ``aleatoria'' (mediante uso de la funcion \verb|rand()|) cuando manda un mensaje de conectar un nuevo usuario, y este numero lo recibe el servidor, le aplica una funci\'on matematica (actualmente la funci\'on que se aplica es la identidad) y le devuelve el nuevo valor y el cliente verifica que el valor devuelto sea el correcto, sino lo es, devuelve un error. Existen funciones de seteo de valores tanto para el cliente como para el servidor.
+
+\subsection{Protocolo de comunicaci\'on entre Movie Store Server y Payment Lookup Server}
+La comunicaci\'on entre el mss y el pls se realiza de la siguiente manera:
+Hay un s\'olo tipo de paquetes, que contiene la siguiente informaci\'on: Nombre del payement server, su IP y puerto y su TTL.
+El paquete tiene una longitud constante, en nuestra implementaci\'on de 74 bytes, distribuidos de la siguiente forma:
+50 bytes para el nombre del payment server (formato String), 16 bytes para la IP (formato String), 4 bytes para el puerto (formato Int), y 4 bytes para el campo TTL (formato Int).
+
+Cuando el Movie Store Server quiere comunicarse con el Payment look up server, arma un paquete con las caracter\'isticas descriptas anteriormente, poniendo en campo nombre, el nombre del payment server.
+Si el payement lookup server encuentra el payment server pedido, responde con el mismo paquete, con el nombre del payment server, su ip y puerto y su TTL. En caso de que el payment server pedido sea incorrecto, en el campo del nombre del payment server se pone el string ``ERROR''.
+
+
+
+\newpage
+\section{Problemas encontrados}
+Algunos de los problemas encontrados en la ultima version son:
+\begin{itemize}
+ \item No verifica bien el MD5, cuando recibe una pelicula el cliente. A veces funciona.
+ \item A veces no se guarda bien el estado de conexion del usuario.
+ \item No esta probado capturar la señal SIGPIPE, cuando se cierra un socket, por algun incoveniente.
+\end{itemize}
+
+\section{Limitaciones de la aplicaci\'on}
+La aplicacion no fue testeada con mas de cuatro clientes a la vez.
+
+
+\section{Posibles extenciones}
+Algunas posibles extenciones de la aplicacion dentro de las variadas que existen son:
+\begin{itemize}
+ \item Se podr\'ia cambiar el sistema de guardar datos en el msserver por uno que implemente sqlite. Esto incrementaría la eficiencia.
+ \item Se podr\'ian agregar otros servidores de pago, con más información.
+ \item Se podr\'ia agregar nuevos métodos de encriptación.
+ \item Implementar retransmisi\'on UDP entre el Movie Store Server y el Payment Lookup Server.
+\end{itemize}
+
+
+
+
+\section{Conclusiones}
+En este trabajo practico hemos implementado conceptos vistos en la materia, por ejemplo sockets y señales. Los servidores son concurrentes, lo cual nos dificultó la programacion, pero nos permitio una mayor extensibilidad.
+\newpage
+
+\section{Gu\'ia de instalaci\'on}
+Para instalar la aplicacion, se deben extraer todos los archivos del cd y colocarlo en un directorio. Luego mediante consola acceder a la carpeta que tiene el archivo titulado \textit{Makefile}, y ejecutar la orden: \verb|make again|.\\
+Al ejecutar esta orden, se compilaran todos los archivos con c\'odigo fuente y se obtendran en la misma carpeta los siguientes ejecutables:
+\begin{itemize}
+ \item \verb|msclient| Aplicaci\'on Movie Store Client.
+ \item \verb|msserver| Aplicaci\'on Movie Store Server.
+ \item \verb|plserver| Aplicaci\'on Payment Lookup Server.
+ \item \verb|pserver|  Aplicaci\'on Payment Server.
+\end{itemize}
+ Una ves obtenido los archivos ejecutables, y creado los respectivos archivos de configuraci\'on en los casos que haga falta, se podran ejecutar los distintos servidores y el cliente.
+
+\newpage
+\section{Instrucciones para la configuraci\'on}
+\subsection{Movie Store Server}
+Al Movie Store Server no se le pasan argumentos por l\'inea de comandos. La configuraci\'on se realiza por medio del archivo mssconfig que se encuentra dentro de la carpeta Config.
+Dicho archivo es de texto, y su estructura es la siguiente:\\
+En la primer l\'inea se introduce la informaci\'on (IP y puerto) del servidor LDAP en la forma: \begin{center}ldapServer=[IP];[Puerto]\end{center}
+En la segunda l\'inea se introduce la informaci\'on del Payment lookup server en la forma:
+\begin{center}plServer=[IP];[Puerto]\end{center}
+En las l\'ineas sucesivas se escriben las IPs y puertos a los cuales se bindear\'a el Movie Store Server. En cada l\'inea se escribe una IP y un puerto de la siguiente forma:
+\begin{center}mssendpoint=[IP];[Puerto]\end{center}
+
+Se validan en todas las ip de este archivo que sean ips bien formadas, y en los puertos que sean mayores a 1024 y menores a 65000.
+
+\subsubsection{Ejemplo de configuraci\'on}
+
+\begin{verbatim}
+ldapServer=10.6.0.159;389
+plServer=127.0.0.1;10539
+mssendpoint=127.0.0.1;10535
+mssendpoint=127.0.0.1;11535
+mssendpoint=127.0.0.1;12535
+\end{verbatim}
+
+\subsection{Payment Lookup Server}
+
+El Payment lookup server recibe opcionalmente por l\'inea de comandos el puerto en el cual debe escuchar. Si no se le pasa dicho argumento, o se le pasa un puerto inv\'alido toma como default el puerto 10539.
+La informaci\'on de los payment servers las toma del archivo plsconfig. Dicho archivo es de texto, y contiene en cada l\'inea la informaci\'on sobre un payment server. La estructura de cada l\'inea es:
+\begin{center}[Nombre];[IP];[Puerto];[TTL]\end{center}
+\subsubsection{Ejemplo de configuraci\'on}
+
+\begin{verbatim}
+Visa;127.0.0.1;10001;100
+MasterCard;127.0.0.1;10002;200
+AmericanExpress;127.0.0.1;10003;300
+Diners;127.0.0.1;10004;400
+Cabal;127.0.0.1;10005;500
+\end{verbatim}
+
+\subsection{Payment Server}
+
+El payment server al igual que el payment lookup server recibe opcionalmente por l\'inea de comandos el puerto en el cual escuchar. Si no se le pasa o si es incorrecto usar\'a por default el puerto 10001.
+La informaci\'on de los clientes en el payment server se lee del archivo de texto psconfig cuya estructura es la provista por la c\'atedra.
+
+
+\end{document}
+
